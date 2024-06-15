@@ -6,3 +6,4 @@ db.sqlite3
 .idea/note_rest_api.iml
 .idea/vcs.xml
 .idea/workspace.xml
+key.json

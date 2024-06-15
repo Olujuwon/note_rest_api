@@ -1,3 +1,5 @@
+from datetime import timedelta
+from rest_framework.settings import api_settings
 """
 Django settings for note_rest_api project.
 
@@ -39,7 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
-    'api'
+    'knox',
+    'api',
+    'api_auth',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +60,10 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'note_rest_api.urls'
 
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+            'rest_framework.permissions.IsAuthenticated',
+        ],
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
@@ -138,3 +146,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 CORS_ALLOW_CREDENTIALS = True
+
+REST_KNOX = {
+  'AUTH_TOKEN_CHARACTER_LENGTH': 64,
+  'TOKEN_TTL': timedelta(hours=24),
+  'USER_SERIALIZER': 'knox.serializers.UserSerializer',
+  'TOKEN_LIMIT_PER_USER': None,
+  'AUTO_REFRESH': True,
+  'MIN_REFRESH_INTERVAL': 60,
+  'AUTH_HEADER_PREFIX': 'Token',
+  'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
+  'TOKEN_MODEL': 'knox.AuthToken',
+}

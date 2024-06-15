@@ -1,44 +1,90 @@
+from django.contrib.auth.models import User
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+
+from api_auth.serializers import UserSerializer
 from .models import Note
 from .serializers import NoteSerializer
 from django.views.decorators.cache import cache_page
+from knox.models import AuthToken
 
 
 @cache_page(60 * 5)
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def get_routes_info(request):
     routes = [
         {
-            'Endpoint': '/notes/',
+            'Endpoint': 'api/v1/notes',
             'method': 'GET',
             'body': None,
-            'description': 'Returns array of notes'
+            'description': 'Returns array of notes',
+            'status code': '200'
         },
         {
-            'Endpoint': '/notes/id',
+            'Endpoint': 'api/v1/notes/id',
             'method': 'GET',
             'body': None,
-            'description': 'Returns a single note - cached'
+            'description': 'Returns a single note',
+            'status code': '200'
         },
         {
-            'Endpoint': '/notes/',
+            'Endpoint': 'api/v1/notes',
             'method': 'POST',
-            'body': {'body': {}},
-            'description': 'Creates new note with data sent in post request'
+            'body': {},
+            'description': 'Creates new note with data sent in post request',
+            'status code': '201'
         },
         {
-            'Endpoint': '/notes/id',
+            'Endpoint': 'api/v1/notes/id',
             'method': 'PUT',
-            'body': {'body': {}},
-            'description': 'Updates an existing note with data sent in post request'
+            'body': {},
+            'description': 'Updates an existing note with data sent in post request',
+            'status code': '200'
         },
         {
-            'Endpoint': '/notes/id',
+            'Endpoint': 'api/v1/notes/id',
             'method': 'DELETE',
             'body': None,
-            'description': 'Deletes an exiting note'
+            'description': 'Deletes an exiting note',
+            'status code': '204'
+        },
+        {
+            'Endpoint': 'api/v1/auth/login',
+            'method': 'POST',
+            'body': {'username': '', 'password': ''},
+            'description': 'Returns user data + Authorize token',
+            'status code': '200'
+        },
+        {
+            'Endpoint': 'api/v1/auth/logout',
+            'method': 'POST',
+            'body': None,
+            'description': 'Return HTTP 204 and deletes user token',
+            'status code': '204'
+        },
+        {
+            'Endpoint': 'api/v1/auth/logoutall',
+            'method': 'POST',
+            'body': None,
+            'description': 'Return HTTP 204 and deletes all associated user tokens',
+            'status code': '204'
+        },
+        {
+            'Endpoint': 'api/v1/auth/register',
+            'method': 'POST',
+            'body': {'username': '', 'password': '', 'email': ''},
+            'description': 'Returns user data + Authorize token',
+            'status code': '201'
+        },
+        {
+            'Endpoint': 'api/v1/auth/user',
+            'method': 'GET',
+            'body': None,
+            'description': 'Requires token authorization header, returns authenticated user detail',
+            'status code': '200'
         },
     ]
     return Response(routes)
@@ -48,11 +94,12 @@ def get_routes_info(request):
 @api_view(['GET', 'POST'])
 def note_list_and_create(request):
     if request.method == 'GET':
+        user_id = request.user.id
         notes = Note.objects.all()
         serialized_notes = NoteSerializer(notes, many=True)
-        return Response(serialized_notes.data, status=status.HTTP_200_OK)
+        filtered_notes = [note for note in serialized_notes.data if note['owner'] == user_id]
+        return Response(filtered_notes, status=status.HTTP_200_OK)
     if request.method == 'POST':
-        print('Request data', request.data)
         serialized_note = NoteSerializer(data=request.data)
         if serialized_note.is_valid():
             serialized_note.save()

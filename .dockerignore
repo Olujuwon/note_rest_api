@@ -1,0 +1,10 @@
+.terraform
+.terraform.lock.hcl
+cloudbuild.yaml
+Dockerfile
+key.json
+logs.txt
+main.tf
+terraform.tfstate
+terraform.tfstate.backup
+variables.tf

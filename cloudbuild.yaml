@@ -25,7 +25,7 @@ steps:
       - run
       - services
       - update
-      - $REPO_NAME
+      - note-rest-api
       - '--platform=managed'
       - '--image=$LOCATION-docker.pkg.dev/$PROJECT_ID/note-rest-api/note-rest-api:$COMMIT_SHA'
       - >-

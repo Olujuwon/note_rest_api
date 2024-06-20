@@ -6,7 +6,7 @@ steps:
       - build
       - '--no-cache'
       - '-t'
-      - '$LOCATION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:$COMMIT_SHA'
+      - '$LOCATION-docker.pkg.dev/$PROJECT_ID/note-rest-api/note-rest-api:$COMMIT_SHA'
       - .
       - '-f'
       - Dockerfile
@@ -16,7 +16,7 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - '$LOCATION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:$COMMIT_SHA'
+      - '$LOCATION-docker.pkg.dev/$PROJECT_ID/note-rest-api/note-rest-api:$COMMIT_SHA'
     id: 'push'
 
   # -------------------- Deploy ---------------------------------
@@ -27,7 +27,7 @@ steps:
       - update
       - $REPO_NAME
       - '--platform=managed'
-      - '--image=$LOCATION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:$COMMIT_SHA'
+      - '--image=$LOCATION-docker.pkg.dev/$PROJECT_ID/note-rest-api/note-rest-api:$COMMIT_SHA'
       - >-
         --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
       - '--region=$_DEPLOY_REGION'
@@ -36,12 +36,12 @@ steps:
     entrypoint: gcloud
     waitFor: ['push']
 images:
-  - '$LOCATION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:$COMMIT_SHA'
+  - '$LOCATION-docker.pkg.dev/$PROJECT_ID/note-rest-api/note-rest-api:$COMMIT_SHA'
 options:
   logging: CLOUD_LOGGING_ONLY
   substitutionOption: ALLOW_LOOSE
 substitutions:
-  _DEPLOY_REGION: europe-north1
+  _DEPLOY_REGION: europe-west1
   _GCR_HOSTNAME: eu.gcr.io
   _PLATFORM: managed
 tags:

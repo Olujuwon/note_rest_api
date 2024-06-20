@@ -1,14 +1,11 @@
-from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 
-from api_auth.serializers import UserSerializer
 from .models import Note
 from .serializers import NoteSerializer
 from django.views.decorators.cache import cache_page
-from knox.models import AuthToken
 
 
 @cache_page(60 * 5)
@@ -90,7 +87,6 @@ def get_routes_info(request):
     return Response(routes)
 
 
-@cache_page(60 * 5)
 @api_view(['GET', 'POST'])
 def note_list_and_create(request):
     if request.method == 'GET':
@@ -107,7 +103,6 @@ def note_list_and_create(request):
         return Response(serialized_note.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@cache_page(60 * 5)
 @api_view(['GET', 'PUT', 'DELETE'])
 def note_detail_update_and_delete(request, pk):
     if request.method == 'GET':

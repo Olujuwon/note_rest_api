@@ -10,7 +10,7 @@ class Note(models.Model):
     updatedAt = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['createdAt']
+        ordering = ['updatedAt']
 
     def __str__(self):
         return self
